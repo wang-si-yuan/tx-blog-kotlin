@@ -1,0 +1,25 @@
+server:
+  port: 9000
+spring:
+  datasource:
+    hikari:
+      connection-timeout: 30000
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: 123456
+  thymeleaf:
+    enabled: true
+    cache: false
+# Qiniu Cloud
+# https://developer.qiniu.com/kodo/sdk/1239/java
+# https://tinify.cn/developers/reference/java 比较耗时
+qns:
+  access-key: 测试可去七牛申请KODO
+  secret-key: 测试可去七牛申请KODO
+  bucket: tx-blog
+  region: 2
+  cdn: 七牛提供30天测试CDN
+  tiny-api-key: TINIFY图片压缩申请
+  tinify: false

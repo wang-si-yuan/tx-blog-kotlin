@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title th:text="${title}">首页</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/detail.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/cat.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/msg.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/fontawesome/css/all.min.css}"/>
+    <link href="https://cdn.bootcss.com/highlight.js/9.18.1/styles/arduino-light.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
+    <script src="https://cdn.bootcss.com/marked/0.8.1/marked.min.js"></script>
+    <script src="https://cdn.bootcss.com/highlight.js/9.18.1/highlight.min.js"></script>
+    <script type="text/javascript" th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</head>
+<body>
+<div id="app" class="d-flex flex-column">
+    <div th:replace="include/fragment::nav"
+         class="navbar navbar-expand-md navbar-light fixed-top bg-light shadow-sm rounded">
+    </div>
+    <div role="main" class="flex-shrink-0 container mb-5">
+        <div class="row mt-3">
+            <div class="col-md-9">
+                <div class="post">
+                    <h3 class="title"><a href="javascript:void(0)" v-text="data1.title">基于网关的定位服务</a></h3>
+                    <p class="date">
+                        Posted {{formatDate(data1.createdAt)}}
+                    </p>
+                    <p class="brief" v-text="data1.brief">
+                        这其实是一个Markdown渲染的演示效果文章
+                    </p>
+                    <div id="content" class="content" v-html="marked(data1.content)"></div>
+                </div>
+                <hr/>
+                <div class="comment">
+                    <h4>评论列表</h4>
+                    <div class="button text-xl-center mb-2">
+                        <button class="btn btn-light m-auto" data-toggle="modal" data-target="#exampleModal">发表评论
+                        </button>
+                    </div>
+                    <div v-if="comments.length" v-for="cmt in comments" :key="cmt.id" class="reply"
+                         :style="{ paddingLeft: cmt.level * 2.5 + 'rem' }">
+                        <div class="row m-0 p-0">
+                            <h6 v-text="cmt.name">archx</h6>
+                        </div>
+                        <div class="reply-date">{{formatDate(cmt.createdAt)}}</div>
+                        <div class="reply-content" v-text="cmt.content">
+                            博主有考虑将 Blog 程序开源吗
+                        </div>
+                        <a href="javascript:void(0)" v-if="cmt.level < 2" class="btn btn-outline-dark"
+                           data-toggle="modal" :data-post-id="data1.id" :data-parent-id="cmt.id"
+                           data-target="#exampleModal">回复</a>
+                        <hr/>
+                    </div>
+                </div>
+            </div>
+            <div th:include="include/fragment::cat" class="col-md-3 d-none d-md-block"></div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">发表评论</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="comment-name" class="col-form-label">用户名:</label>
+                            <input v-model="comment.name" type="text" class="form-control" id="comment-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="comment-email" class="col-form-label">Email:</label>
+                            <input v-model="comment.email" type="email" class="form-control" id="comment-email">
+                        </div>
+                        <div class="form-group">
+                            <label for="comment-content" class="col-form-label">评论内容:</label>
+                            <textarea v-model="comment.content" class="form-control" id="comment-content"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-secondary" @click="handleSubmit">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="message hide">
+        <div class="msg-header">
+            <p class="msg-title" v-text="msg.title">这是标题</p>
+            <button class="msg-close" @click="closeClick()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="msg-body">
+            <p v-text="msg.desc">oh..</p>
+        </div>
+    </div>
+    <footer th:replace="include/fragment::footer" class="footer mt-auto py-3"></footer>
+    <a href="#top" id="backTop" class="back-top btn-round">
+        <i class="fas fa-chevron-up fa-lg"></i>
+    </a>
+</div>
+</body>
+<script type="text/javascript">
+
+    function replace_code(context) {
+        const e = context.querySelectorAll("code");
+        const e_len = e.length;
+        for (let i = 0; i < e_len; i++) {
+            e[i].innerHTML = "<ul><li>" + e[i].innerHTML.replace(/\n/g, "\n</li><li>") + "\n</li></ul>";
+        }
+    }
+
+    // blockquote
+    function highlight_element(context, selector, callback) {
+        const elements = context.getElementsByTagName(selector);
+        for (let i = 0; i < elements.length; i++) {
+            hljs.highlightBlock(elements[i])
+            if (callback) {
+                callback(elements[i])
+            }
+        }
+    }
+
+    // highlight_blockquote()
+    // highlight_element(document, 'blockquote');
+</script>
+<script type="text/javascript" th:inline="javascript">
+    const PATH = /*[[@{/}]]*/'/';
+    const LINK = /*[[${link}]]*/'/';
+    const app = new Vue({
+        el: '#app',
+        data: function () {
+            const self = this;
+            return {
+                searchText: '',
+                comment: {
+                    postId: 0,
+                    parentId: 0,
+                    name: '',
+                    email: '',
+                    content: ''
+                },
+                msg: {
+                    title: '',
+                    desc: ''
+                },
+                data1: {
+                    title: '正在加载',
+                    brief: '正在加载',
+                    content: '正在加载',
+                },
+                comments: [],
+            }
+        },
+        methods: {
+            categoryClick: function (e) {
+                // jq
+                window.location.href = $(e.target).attr('data-href')
+                // this.request('data/posts/category/' + cat.id, 1)
+            },
+            closeClick: function () {
+                $('div.message').hide(750, function () {
+                })
+            },
+            handleSubmit: function () {
+                // check
+                const self = this;
+                const data = this.comment;
+
+                if (!data.name || !data.content) {
+                    self.msg = {
+                        title: '错误提示',
+                        desc: '用户名和评论内容必须填写'
+                    };
+                    $('div.message').show(250, function () {
+                        setTimeout(function () {
+                            $('div.message').hide();
+                        }, 3000);
+                    });
+                    return;
+                }
+
+                data.postId = this.data1.id;
+                // submit
+                $.ajax({
+                    url: PATH + 'data/comments',
+                    type: 'post',
+                    dataType: 'json',
+                    contentType: "application/json",
+                    data: JSON.stringify(data)
+                }).done(function (resp) {
+                    if (resp.err_code === 0) {
+                        $('#exampleModal').modal('hide');
+                        self.loadComment();
+                        self.msg = {
+                            title: '消息提醒',
+                            desc: '操作成功'
+                        };
+                        $('div.message').show(250, function () {
+                            setTimeout(function () {
+                                $('div.message').hide();
+                            }, 3000);
+                        });
+                    } else {
+                        self.msg = {
+                            title: '消息提醒',
+                            desc: resp.message || '操作是吧'
+                        };
+                        $('div.message').show(250, function () {
+                            setTimeout(function () {
+                                $('div.message').hide();
+                            }, 3000);
+                        });
+                    }
+                }).fail(function (resp) {
+                    // TODO
+                })
+            },
+            request: function () {
+                const self = this;
+                // 文章数据
+                $.get(PATH + 'data/s/' + LINK).done(function (resp) {
+                    if (resp.err_code === 0) {
+                        self.data1 = resp.data;
+                        setTimeout(function () {
+                            highlight_element(document, 'pre', function (element) {
+                                replace_code(element)
+                            });
+                        }, 500);
+                        self.loadComment()
+                    } else {
+                        // TODO error
+                    }
+                });
+
+            },
+            loadComment: function () {
+                const self = this;
+                $.get(PATH + 'data/comments/' + this.data1.id).done(function (resp) {
+                    if (resp.err_code === 0) {
+                        self.comments = resp.data
+                    } else {
+                        // TODO error
+                    }
+                })
+            },
+            formatDate: function (datetime) {
+                console.log('this.....', datetime)
+                const date = new Date(datetime);// 时间戳为10位需*1000，时间戳为13位的话不需乘1000
+                const year = date.getFullYear();
+                const month = ('0' + (date.getMonth() + 1)).slice(-2);
+                const sdate = ('0' + date.getDate()).slice(-2);
+                const hour = ('0' + date.getHours()).slice(-2);
+                const minute = ('0' + date.getMinutes()).slice(-2);
+                const second = ('0' + date.getSeconds()).slice(-2);
+                // 拼接返回
+                return year + '-' + month + '-' + sdate + ' ' + hour + ':' + minute + ':' + second
+            }
+        },
+        created: function () {
+            const self = this;
+            this.request()
+        }
+    });
+
+    // 对话框打开
+    $('#exampleModal').on('shown.bs.modal', function (evt) {
+        const ele = $(evt.relatedTarget);
+        const parentId = ele.data('parent-id');
+        const postId = ele.data('post-id');
+        app.comment = {
+            postId: postId || 0,
+            parentId: parentId || 0,
+            name: '',
+            email: '',
+            content: ''
+        }
+    });
+    // 对话框关闭
+    $('#exampleModal').on('hidden.bs.modal', function (evt) {
+        app.comment = {
+            postId: 0,
+            parentId: 0,
+            name: '',
+            email: '',
+            content: ''
+        };
+    });
+</script>
+</html>

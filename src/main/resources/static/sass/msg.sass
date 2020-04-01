@@ -1,0 +1,32 @@
+div.message
+  position: fixed
+  z-index: 1999
+  top: 1.5rem
+  right: 1.5rem
+  min-height: 5.2rem
+  min-width: 15rem
+  border-radius: .25rem
+  font-size: 0.875rem
+  background-color: rgba(255,255,255,1)
+  border: 1px solid rgba(0,0,0,.1)
+  box-shadow: 0 .25rem .75rem rgba(0,0,0,.1)
+  &.hide
+    display: none
+  &.show
+    display: block
+  .msg-header
+    display: flex
+    justify-content: space-between
+    padding: 0 .75rem
+    height: 2.5rem
+    line-height: 2.5rem
+    background-color: rgba(255,255,255,.85)
+    border-bottom: 1px solid rgba(0,0,0,.05)
+  .msg-title
+    display: inline-block
+  .msg-body
+    padding: 0.25rem .75rem
+  .msg-close
+    background-color: rgba(255,255,255,.85)
+    border: none
+    outline-style: none

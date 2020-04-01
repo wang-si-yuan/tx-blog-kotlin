@@ -1,0 +1,88 @@
+@use "main"
+@import "colors"
+
+div.comment
+  h3
+    font-size: 1.5rem
+    font-weight: 400
+    line-height: 1.4
+  h4
+    font-size: 1.25rem
+    font-weight: 400
+    line-height: 1.4
+
+div.post
+  .title
+    color: #333333
+    a
+      text-decoration: none
+      color: inherit
+  .date, .read
+    font-size: 0.875rem
+    line-height: 1.4
+    color: #999
+  .brief, .content
+    color: #5f6368
+  .content
+    img
+      width: 100%
+    h1,h2,h3,h4
+      font-weight: 400
+      line-height: 1.4
+    h1
+      font-size: 1.5rem
+    h2
+      font-size: 1.25rem
+    h3
+      font-size: 1.05rem
+    h4
+      font-size: 1rem
+    blockquote
+      color: #888
+      border-left: 4px solid #ccc
+      p
+        padding-left: 1rem
+div.comment
+  .reply-date
+    font-size: 0.85rem
+    color: #999
+  .reply-content
+    font-size: 0.9rem
+    color: #5f6368
+  a.btn
+    margin-top: 0.5rem
+    font-size: 0.864rem
+
+.back-top
+  position: fixed
+  right: 1rem
+  bottom: 1rem
+  z-index: 99
+.btn-round
+  text-align: center
+  color: #eee
+  background-color: rgba(0,0,0, 0.25)
+  border: none
+  padding: 1.25rem
+  width: 4rem
+  height: 4rem
+  border-radius: 50%
+.btn-round:hover
+  color: #fff
+  background-color: rgba(0,0,0, 0.5)
+.hljs
+  ul
+    list-style: decimal
+    margin: 0 0 0 2rem !important
+    padding: 0
+  li
+    list-style: decimal-leading-zero
+    border-left: 1px solid #ccc!important
+    padding: 2px 5px!important
+    margin: 0!important
+    line-height: 0.8
+    width: 100%
+    box-sizing: border-box
+  li:nth-of-type(even)
+    background-color: rgba(255,255,255,.015)
+    color: inherit

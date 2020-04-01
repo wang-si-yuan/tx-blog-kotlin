@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.archx.txblog.data.mapper.DraftMapper">
+
+    <resultMap id="DraftTagMap" type="io.archx.txblog.data.domain.Draft">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="postId" column="post_id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="brief" column="brief" jdbcType="VARCHAR"/>
+        <result property="shortLink" column="short_link" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="LONGVARCHAR"/>
+        <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
+        <association property="category" javaType="io.archx.txblog.data.domain.Category">
+            <id property="id" column="category_id" jdbcType="INTEGER"/>
+            <result property="category" column="category" jdbcType="VARCHAR"/>
+        </association>
+        <collection property="tags" ofType="io.archx.txblog.data.domain.Tag">
+            <id property="id" column="tag_id" jdbcType="INTEGER"/>
+            <result property="name" column="tag_name" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <select id="findById" parameterType="long" resultMap="DraftTagMap">
+        SELECT p.id,
+               p.post_id,
+               p.title,
+               p.brief,
+               p.content,
+               p.short_link,
+               p.pin,
+               p.state,
+               p.created_at,
+               p.updated_at,
+               p.category_id,
+               c.category,
+               t.id     tag_id,
+               t.`name` tag_name
+        FROM tx_drafts p
+                 LEFT JOIN tx_draft_tags pt ON p.id = pt.draft_id
+                 LEFT JOIN tx_tag t ON t.id = pt.tag_id
+                 LEFT JOIN tx_category c ON p.category_id = c.id
+        WHERE p.id = #{id}
+    </select>
+</mapper>

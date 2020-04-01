@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.archx.txblog.data.mapper.CategoryMapper">
+
+    <select id="findAll" parameterType="string" resultType="io.archx.txblog.data.domain.Category">
+        SELECT tc.id,
+               tc.category,
+               tc.state,
+               ifnull(tp.total, 0) posts
+        FROM tx_category tc
+                 LEFT JOIN (SELECT category_id, count(1) AS total FROM tx_post WHERE state = 1 GROUP BY category_id) tp
+                           ON tc.id = tp.category_id
+    </select>
+
+</mapper>

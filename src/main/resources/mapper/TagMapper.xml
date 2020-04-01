@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.archx.txblog.data.mapper.TagMapper">
+
+    <select id="findForPost" parameterType="int" resultType="io.archx.txblog.data.domain.Tag">
+        SELECT t.id, t.`name`
+        FROM tx_tag t
+                 LEFT JOIN tx_post_tags pt ON t.id = pt.tag_id
+        WHERE pt.post_id = #{postId}
+    </select>
+
+</mapper>

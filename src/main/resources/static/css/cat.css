@@ -1,0 +1,21 @@
+div.category h3, div.tags h3 {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+div.category h4, div.tags h4 {
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+div.tags .btn {
+  margin-right: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+div.category li {
+  cursor: pointer;
+}
+
+/*# sourceMappingURL=cat.css.map */

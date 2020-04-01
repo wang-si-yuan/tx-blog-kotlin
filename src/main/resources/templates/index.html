@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title th:text="${title}">首页</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/cat.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/fontawesome/css/all.min.css}"/>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
+    <script type="text/javascript" th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</head>
+<body>
+<div id="app" class="d-flex flex-column">
+    <div th:replace="include/fragment::nav"
+         class="navbar navbar-expand-md navbar-light fixed-top bg-light shadow-sm rounded">
+    </div>
+    <div role="main" class="flex-shrink-0 container">
+        <div class="row mt-3">
+            <div class="col-md-9">
+                <div class="tips">
+                    <div v-if="attributes.type" class="alert alert-secondary" role="alert">
+                        <span v-if="attributes.type === 'c'" style="font-weight: bold">分类：</span>
+                        <span v-if="attributes.type === 'c'" v-text="attributes.value.category"></span>
+                        <span v-if="attributes.type === 't'" style="font-weight: bold">标签：</span>
+                        <span v-if="attributes.type === 't'" v-text="attributes.value.name"></span>
+                    </div>
+                </div>
+                <div v-if="data1.length === 0" class="article">
+                    <h4>未找到任何文章...</h4>
+                </div>
+                <div v-for="item in data1" class="article">
+                    <h4 class="title"><a href="#" v-text="item.title">使用SpringBoot+Kotlin构建博客程序</a></h4>
+                    <p class="date">
+                        <!-- Posted 2020-03-30 -->
+                        Posted {{ formatDate(item.createdAt)}}
+                    </p>
+                    <p class="brief" v-text="item.brief">
+                        这是一个拖延了很久的想法，一直没动手实现。想着既然想了就去做吧，然后就有了这个呈现在眼前东西...
+                    </p>
+                    <a class="read" href="javascript:void(0)" @click="read(item)">点击阅读</a>
+                    <hr/>
+                </div>
+                <ul class="pagination small">
+                    <li :class="page.current > 1 ? 'page-item' : 'page-item disabled'">
+                        <a class="page-link" href="javascript:void(0)" @click="prevClick"> &lt; </a>
+                    </li>
+                    <li v-for="item in pagination" :key="item"
+                        :class="item === page.current ? 'page-item active' : 'page-item'">
+                        <a class="page-link" href="javascript:void(0)" @click="pageClick(item)" v-text="item">2</a>
+                    </li>
+                    <li class="page-item disabled"><a class="page-link" href="javascript:void(0)"><span
+                            v-text="page.current">1</span>/<span v-text="page.pages">1</span></a></li>
+                    <li :class="page.current < page.pages ? 'page-item' : 'page-item disabled'">
+                        <a class="page-link" href="javascript:void(0)" @click="nextClick"> &gt; </a>
+                    </li>
+                </ul>
+            </div>
+            <div th:include="include/fragment::cat" class="col-md-3 d-none d-md-block"></div>
+        </div>
+    </div>
+    <footer th:replace="include/fragment::footer" class="footer mt-auto py-3"></footer>
+</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+    const PATH = /*[[@{/}]]*/'/=x';
+    const app = new Vue({
+        el: '#app',
+        data: function () {
+            const self = this;
+            return {
+                searchText: /*[[${keywords}]]*/'',
+                type: /*[[${type}]]*/'',
+                id: /*[[${id}]]*/0,
+                page: {
+                    load: 0,
+                    current: 1,
+                    size: 15,
+                    pages: 1,
+                    total: 0
+                },
+                data1: [],
+                categories: [],
+                tags: [],
+                attributes: {}
+            }
+        },
+        methods: {
+            read: function (post) {
+                window.location.href = PATH + 's/' + post.shortLink
+            },
+            categoryClick: function (e) {
+                // jq
+                window.location.href = $(e.target).attr('data-href')
+                // this.request('data/posts/category/' + cat.id, 1)
+            },
+            prevClick: function () {
+                console.log('prev', this.page.current)
+                if (this.page.current > 1) {
+                    this.page.current = this.page.current - 1;
+                    this.request()
+                }
+            },
+            nextClick: function () {
+                console.log('next', this.page.current)
+                if (this.page.current < this.page.pages) {
+                    this.page.current = this.page.current + 1;
+                    this.request()
+                }
+            },
+            pageClick: function (page) {
+                this.page.current = page;
+                this.request()
+            },
+            request: function () {
+                const self = this;
+                let url = 'data/posts';
+                if (this.type === 'c') {
+                    url = 'data/posts/category/' + this.id
+                }
+                if (this.type === 't') {
+                    url = 'data/posts/tags/' + this.id
+                }
+
+                // 文章数据
+                $.get(PATH + url + '?current=' + this.page.current + '&size=' + this.page.size + '&keywords='
+                    + encodeURIComponent(this.searchText)).done(function (resp) {
+                    if (resp.err_code === 0) {
+                        const data = resp.data;
+                        if (self.page.load === 0) {
+                            self.page.load = 1;
+                            self.page.total = data.total;
+                            // 计算页数
+                            let pages = Math.floor(data.total / data.size)
+                            if (data.total !== 0 && data.total % data.size !== 0) {
+                                pages++
+                            }
+                            self.page.pages = pages;
+                        }
+                        self.attributes = data.attributes;
+                        self.data1 = data.records;
+                    } else {
+                        // TODO error
+                    }
+                });
+
+            },
+            formatDate: function (datetime) {
+                console.log('this.....', datetime)
+                const date = new Date(datetime);// 时间戳为10位需*1000，时间戳为13位的话不需乘1000
+                const year = date.getFullYear();
+                const month = ('0' + (date.getMonth() + 1)).slice(-2);
+                const sdate = ('0' + date.getDate()).slice(-2);
+                const hour = ('0' + date.getHours()).slice(-2);
+                const minute = ('0' + date.getMinutes()).slice(-2);
+                const second = ('0' + date.getSeconds()).slice(-2);
+                // 拼接返回
+                return year + '-' + month + '-' + sdate + ' ' + hour + ':' + minute + ':' + second
+            }
+        },
+        computed: {
+            pagination: function () {
+                // 前三个 当前页 后三个
+                const pages = this.page.pages;
+                const current = this.page.current;
+
+                console.log(this.page)
+                const arr = [];
+
+                if (pages > 0) {
+                    let left = Math.max(current - 3, 1);
+                    const right = Math.min(current + 3, pages);
+                    while (left < current) {
+                        arr.push(left++);
+                    }
+                    let index = current;
+                    while (index <= right) {
+                        arr.push(index++);
+                    }
+                }
+
+                return arr;
+            }
+        },
+        created: function () {
+            this.request()
+        }
+    })
+</script>
+</html>

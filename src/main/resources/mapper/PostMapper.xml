@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.archx.txblog.data.mapper.PostMapper">
+
+    <resultMap id="PostTagMap" type="io.archx.txblog.data.domain.Post">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="brief" column="brief" jdbcType="VARCHAR"/>
+        <result property="shortLink" column="short_link" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="LONGVARCHAR"/>
+        <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="BIGINT"/>
+        <association property="category" javaType="io.archx.txblog.data.domain.Category">
+            <id property="id" column="category_id" jdbcType="INTEGER"/>
+            <result property="category" column="category" jdbcType="VARCHAR"/>
+        </association>
+        <collection property="tags" ofType="io.archx.txblog.data.domain.Tag">
+            <id property="id" column="tag_id" jdbcType="INTEGER"/>
+            <result property="name" column="tag_name" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <select id="findById" parameterType="int" resultMap="PostTagMap">
+        SELECT p.id,
+               p.title,
+               p.brief,
+               p.content,
+               p.short_link,
+               p.pin,
+               p.state,
+               p.created_at,
+               p.updated_at,
+               p.category_id,
+               c.category,
+               t.id     tag_id,
+               t.`name` tag_name
+        FROM tx_post p
+                 LEFT JOIN tx_post_tags pt ON p.id = pt.post_id
+                 LEFT JOIN tx_tag t ON t.id = pt.tag_id
+                 LEFT JOIN tx_category c ON p.category_id = c.id
+        WHERE p.id = #{id}
+    </select>
+
+    <select id="findByShortLink" parameterType="string" resultMap="PostTagMap">
+        SELECT p.id,
+               p.title,
+               p.brief,
+               p.content,
+               p.short_link,
+               p.pin,
+               p.state,
+               p.created_at,
+               p.updated_at,
+               p.category_id,
+               c.category,
+               t.id     tag_id,
+               t.`name` tag_name
+        FROM tx_post p
+                 LEFT JOIN tx_post_tags pt ON p.id = pt.post_id
+                 LEFT JOIN tx_tag t ON t.id = pt.tag_id
+                 LEFT JOIN tx_category c ON p.category_id = c.id
+        WHERE p.short_link = #{s}
+    </select>
+
+    <select id="findAllByTagId" parameterType="int" resultType="io.archx.txblog.data.domain.Post">
+        SELECT p.id,
+               p.title,
+               p.brief,
+               p.short_link,
+               p.state,
+               p.category_id,
+               p.created_at,
+               p.updated_at
+        FROM tx_post_tags pt
+                 LEFT JOIN tx_post p ON pt.post_id = p.id
+        WHERE pt.tag_id = #{tagId}
+          and p.state = 1
+    </select>
+</mapper>
