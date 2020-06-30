@@ -19,17 +19,13 @@ class LoginServiceImpl(val us: UserService) : LoginService {
     val logger = getLogger()
 
     override fun login(username: String, password: String): String? {
-        val user = us.findByUsername(username)
-        if (user != null) {
-            val encodedPwd = DigestUtils.md5DigestAsHex((password + "\n" + user.salt).byteInputStream())
-            if (encodedPwd == user.password) {
+        return us.findByUsername(username)?.let {
+            val encodedPwd = DigestUtils.md5DigestAsHex((password + "\n" + it.salt).byteInputStream())
+            if (encodedPwd == it.password) {
                 logger.info("user [ username = {} ] logged in", username)
                 val now = Date()
-                return HttpJwtToken.create(MemberClaim(userId = user.id, username = username, issuedAt = now, expiresAt = HttpJwtToken.getExpiresDate(now)))
-            } else {
-                throw InvalidCertificateException()
-            }
+                return HttpJwtToken.create(MemberClaim(userId = it.id, username = username, issuedAt = now, expiresAt = HttpJwtToken.getExpiresDate(now)))
+            } else throw InvalidCertificateException()
         }
-        return null
     }
 }

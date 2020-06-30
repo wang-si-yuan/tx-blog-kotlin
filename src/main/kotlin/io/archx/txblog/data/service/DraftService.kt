@@ -56,7 +56,7 @@ class DraftServiceImpl(val pm: PostMapper, val ptm: PostTagMapper, val dtm: Draf
 
     @Transactional(rollbackFor = [Exception::class])
     override fun update(postId: Int): Draft? {
-        var draft = baseMapper.findLatestByPostId(postId)
+        val draft = baseMapper.findLatestByPostId(postId)
         if (draft != null) {
             return draft
         }

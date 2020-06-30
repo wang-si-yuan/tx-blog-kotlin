@@ -56,10 +56,13 @@ class CategoryServiceImpl(val pm: PostMapper) : ServiceImpl<CategoryMapper, Cate
     }
 
     override fun update(id: Int, category: String, userId: Int): Category? {
-        val db = getById(id)
-        if (db == null || db.userId != userId) {
-            throw MessageCodeException(CodeDef.RECORD_NOT_FOUND)
-        }
+
+        getById(id)?.takeIf { it.userId == userId } ?: throw MessageCodeException(CodeDef.RECORD_NOT_FOUND)
+
+        //  val db = getById(id)
+        //  if (db == null || db.userId != userId) {
+        //      throw MessageCodeException(CodeDef.RECORD_NOT_FOUND)
+        //  }
 
         // 检测重复
         checkDuplicate(category, userId)
@@ -70,10 +73,7 @@ class CategoryServiceImpl(val pm: PostMapper) : ServiceImpl<CategoryMapper, Cate
     }
 
     override fun delete(id: Int, userId: Int) {
-        val db = getById(id)
-        if (db == null || db.userId != userId) {
-            throw MessageCodeException(CodeDef.RECORD_NOT_FOUND)
-        }
+        getById(id)?.takeIf { it.userId == userId } ?: throw MessageCodeException(CodeDef.RECORD_NOT_FOUND)
 
         val query = KtQueryWrapper(Post::class.java)
         query.eq(Post::categoryId, id)

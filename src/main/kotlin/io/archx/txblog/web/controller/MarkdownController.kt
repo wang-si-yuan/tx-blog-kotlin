@@ -99,7 +99,7 @@ class MarkdownController(
         response.setHeader("Content-Type", "application/zip;charset=utf-8");
         response.contentType = "application/zip";
         // 下载文件能正常显示中文
-        response.setHeader("Content-Disposition", "attachment;filename=" + filename);
+        response.setHeader("Content-Disposition", "attachment;filename=$filename");
 
         out.use { it ->
             val data = it.toByteArray()
